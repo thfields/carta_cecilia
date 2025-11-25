@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Cecília | De Thiago</title>
+    
+    <!-- Importando fontes elegantes do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* * ==========================================
+         * CSS - ESTILOS VISUAIS
+         * ==========================================
+         */
+
+        :root {
+            /* Paleta de Cores Suaves (Rosa e Azul) */
+            --primary-pink: #f8bbd0;
+            --primary-blue: #bbdefb;
+            --accent-pink: #ec407a;
+            --accent-blue: #1e88e5;
+            --text-color: #4a4a4a;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffebf2 0%, #e3f2fd 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden; /* Evita rolagem horizontal */
+            position: relative;
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        /* Fundo Animado (Bolhas sutis de cor) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 50%),
+                        radial-gradient(circle, var(--primary-pink) 0%, transparent 40%);
+            background-size: 50% 50%;
+            opacity: 0.4;
+            animation: bgShift 30s ease infinite alternate;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        @keyframes bgShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50px, -50px); }
+        }
+
+        /* * CONTAINER DE POLAROIDS (BACKGROUND)
+         */
+        .polaroid-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Agora acima do background mas abaixo do modal se necessário, controlado individualmente */
+            pointer-events: none; /* Deixa clicar no fundo, mas vamos reabilitar pointer-events nas fotos */
+        }
+
+        .polaroid {
+            position: absolute;
+            background: white;
+            padding: 8px 8px 30px 8px; /* Padding ajustado */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transição elástica suave */
+            will-change: transform;
+            opacity: 0; 
+            width: 160px; /* Um pouco menor para caber melhor */
+            pointer-events: auto; /* Permite interagir com a foto */
+            cursor: pointer;
+            z-index: 1;
+            
+            /* Animação inicial */
+            animation: floatIn 1.5s ease-out forwards, floatBob 6s ease-in-out infinite alternate;
+        }
+
+        /* Efeito ao passar o mouse: Traz para frente e aumenta */
+        .polaroid:hover {
+            z-index: 100 !important; /* Força ficar no topo de tudo */
+            transform: scale(1.2) rotate(0deg) !important; /* Aumenta e endireita */
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            animation-play-state: paused; /* Para de flutuar enquanto olha */
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: sepia(20%) contrast(90%);
+            transition: filter 0.3s;
+        }
+        
+        .polaroid:hover img {
+            filter: sepia(0%) contrast(100%); /* Remove filtro vintage ao focar */
+        }
+
+        /* POSICIONAMENTO ESTRATÉGICO 
+           Espalhando para os cantos e laterais para evitar o centro
+        */
+        
+        /* Canto Superior Esquerdo */
+        .p1 { 
+            top: 5%; 
+            left: 5%; 
+            --r: -15deg;
+            animation-delay: 0.2s, 0s; 
+        }
+        
+        /* Canto Superior Direito */
+        .p2 { 
+            top: 5%; 
+            right: 5%; 
+            --r: 10deg; 
+            animation-delay: 0.4s, 1s; 
+        }
+        
+        /* Canto Inferior Esquerdo */
+        .p3 { 
+            bottom: 5%; 
+            left: 5%; 
+            --r: 5deg; 
+            animation-delay: 0.6s, 2s; 
+        }
+        
+        /* Canto Inferior Direito */
+        .p4 { 
+            bottom: 5%; 
+            right: 5%; 
+            --r: -8deg; 
+            animation-delay: 0.8s, 1.5s; 
+        }
+        
+        /* Meio Esquerda (lateral) */
+        .p5 { 
+            top: 50%; 
+            left: 2%; 
+            margin-top: -80px; /* Metade da altura aproximada para centrar */
+            --r: 20deg; 
+            width: 140px; 
+            animation-delay: 1s, 0.5s; 
+        }
+        
+        /* Meio Direita (lateral) */
+        .p6 { 
+            top: 50%; 
+            right: 2%; 
+            margin-top: -80px;
+            --r: -12deg; 
+            width: 150px; 
+            animation-delay: 1.2s, 2.5s; 
+        }
+
+        @keyframes floatIn {
+            from { opacity: 0; transform: translateY(50px) scale(0.8) rotate(var(--r)); }
+            to { opacity: 0.9; transform: translateY(0) scale(1) rotate(var(--r)); }
+        }
+
+        @keyframes floatBob {
+            from { transform: translateY(0) rotate(var(--r)); }
+            to { transform: translateY(-15px) rotate(var(--r)); }
+        }
+
+        /* * CARD PRINCIPAL (CARTA)
+         */
+        .letter-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0, 50, 100, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 10; /* Mantém a carta acima das fotos em repouso */
+            margin: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: cardEnter 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes cardEnter {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tipografia da Carta */
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .content {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #555;
+            text-align: justify;
+            margin-bottom: 2rem;
+        }
+
+        .content p {
+            margin-bottom: 1.2rem;
+        }
+        
+        .content p:first-of-type::first-letter {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            float: left;
+            margin-right: 8px;
+            margin-top: -10px;
+            color: var(--accent-pink);
+        }
+
+        .highlight {
+            color: var(--accent-pink);
+            font-weight: 500;
+        }
+
+        .signature {
+            margin-top: 2rem;
+            text-align: right;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 1.5rem;
+        }
+
+        .signature p {
+            font-size: 1.1rem;
+            color: #777;
+            font-style: italic;
+        }
+
+        .signature strong {
+            display: block;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: var(--accent-blue);
+            margin-top: 0.5rem;
+        }
+
+        .heart-icon {
+            font-size: 1.5rem;
+            color: var(--primary-pink);
+            animation: beat 1.5s infinite;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* * RESPONSIVIDADE 
+         */
+        @media (max-width: 768px) {
+            .letter-card {
+                padding: 2rem 1.5rem;
+                margin: 60px 10px 10px 10px; /* Margem superior maior para não cobrir fotos do topo */
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .content {
+                font-size: 0.95rem;
+            }
+
+            /* No celular, posicionamos as fotos de forma fixa nos cantos, menores */
+            .polaroid {
+                width: 100px; /* Menor no mobile */
+                opacity: 0.6 !important;
+                padding: 5px 5px 20px 5px;
+            }
+            
+            .polaroid:hover {
+                 transform: scale(1.5) rotate(0deg) !important;
+                 z-index: 999 !important;
+                 opacity: 1 !important;
+            }
+
+            /* Distribuição específica mobile */
+            .p1 { top: 10px; left: 10px; transform: rotate(-10deg); }
+            .p2 { top: 10px; right: 10px; transform: rotate(10deg); }
+            .p3 { bottom: 10px; left: 10px; transform: rotate(5deg); }
+            .p4 { bottom: 10px; right: 10px; transform: rotate(-5deg); }
+            .p5, .p6 { display: none; } /* Ocultar as do meio em telas muito pequenas */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Galeria de Fundo (Polaroids) -->
+    <div class="polaroid-container" id="gallery">
+        <!-- O CSS define a rotação (var --r) e a posição inicial -->
+        <div class="polaroid p1">
+            <img src="./foto1.png" alt="Memória de infância">
+        </div>
+        <div class="polaroid p2">
+            <img src="./foto2.png" alt="Cecília pequena">
+        </div>
+        <div class="polaroid p3">
+            <img src="./foto3.png" alt="Brincando de bicicleta">
+        </div>
+        <div class="polaroid p4">
+            <img src="./foto4.png" alt="Irmãos juntos">
+        </div>
+        <div class="polaroid p5">
+            <img src="./foto5.png" alt="Brincando na casinha">
+        </div>
+        <div class="polaroid p6">
+            <img src="./foto6.png" alt="Abraço carinhoso">
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <main>
+        <article class="letter-card">
+            <h1>Cecília, minha irmã...</h1>
+            
+            <div class="content">
+                <p>Eu sei que não falo muito, mas eu te amo e tenho muito orgulho de ser seu irmão. Nossa infância foi mágica, e você fez parte disso o tempo todo. Você era minha princesa na carruagem que eu empurrava, minha Mary Jane quando eu queria ser o Homem-Aranha, minha companheira nas barracas de lençol ou quando eu inventava de 'dormir fora' na área, e tudo ficou mais feliz porque você estava comigo.</p>
+                
+                <p>Quero te lembrar do quanto você é <span class="highlight">inteligente e desenrolada</span> pra resolver as coisas. Você aprendeu a cozinhar cedo pra ajudar em casa, e mesmo quando a gente brigava, você fazia almoço pra mim. Você me ajudou quando eu tava desesperado com o carro, sempre me defendeu, e muitas vezes foi mais do que irmã — foi quase uma mãe. Sou muito grato por tudo isso.</p>
+                
+                <p>Tenho orgulho de cada conquista sua: quando você se formou, quando tirou a CNH, quando montou seu quarto… eu fico realmente feliz quando vejo você alcançando o que quer.</p>
+                
+                <p>Queria estar mais perto. Antes a gente se via todo dia, agora é uma vez no mês e olhe lá. Sinto sua falta. Sinto saudade das nossas brincadeiras e dos nossos chamegos.</p>
+            </div>
+
+            <div class="signature">
+                <p>Te amo, minha irmã. Sempre vou estar com você e por você <span class="heart-icon">❤</span></p>
+                <strong>— seu irmão, Thiago.</strong>
+            </div>
+        </article>
+    </main>
+
+    <!-- JavaScript para Efeitos -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Ajustamos o script para respeitar as classes CSS de posicionamento
+            // Apenas adicionamos o efeito suave de movimento em telas grandes
+            if (window.matchMedia("(min-width: 769px)").matches) {
+                const polaroids = document.querySelectorAll('.polaroid');
+                
+                document.addEventListener('mousemove', (e) => {
+                    const x = (window.innerWidth - e.pageX * 2) / 100;
+                    const y = (window.innerHeight - e.pageY * 2) / 100;
+
+                    polaroids.forEach((polaroid, index) => {
+                        // Não sobrescrevemos mais o transform inteiro para não perder o hover
+                        // Usamos CSS variables para o parallax se quisermos algo muito complexo, 
+                        // mas aqui vamos manter simples: apenas leve deslocamento se não estiver em hover
+                        
+                        if (!polaroid.matches(':hover')) {
+                            const speed = (index + 1) * 0.3; // Velocidade menor para não bagunçar layout
+                            const xOffset = x * speed;
+                            const yOffset = y * speed;
+                            
+                            // Pegamos a rotação original do CSS computed style ou da variavel
+                            // Como o CSS já tem animação floatBob, é melhor não brigar com o transform via JS constantemente
+                            // Vamos deixar o CSS floatBob cuidar do movimento para garantir que fiquem nos cantos
+                        }
+                    });
+                });
+            }
+
+            // Animação de entrada sequencial
+            const cards = document.querySelectorAll('.polaroid');
+            cards.forEach((card, i) => {
+                setTimeout(() => {
+                    // Opacidade definida no CSS final da animação, aqui apenas garantimos visibilidade inicial se necessário
+                }, i * 200);
+            });
+        });
+    </script>
+</body>
+</html>
